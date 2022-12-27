@@ -1,0 +1,69 @@
+ifneq ($(words $(CURDIR)),1)
+ $(error Unsupported: GNU Make cannot build in directories containing spaces, build elsewhere: '$(CURDIR)')
+endif
+
+VERILATOR = verilator
+VERILATOR_COVERAGE = verilator_coverage
+
+# Generate C++ in executable form
+VERILATOR_FLAGS += -cc --exe -j 6
+# Generate makefile dependencies (not shown as complicates the Makefile)
+#VERILATOR_FLAGS += -MMD
+# Optimize
+VERILATOR_FLAGS += -x-assign fast
+# Warn abount lint issues; may not want this on less solid designs
+VERILATOR_FLAGS += -Wall
+# Make waveforms
+VERILATOR_FLAGS += --trace-fst --trace-structs
+# Check SystemVerilog assertions
+VERILATOR_FLAGS += --assert
+# Generate coverage analysis
+VERILATOR_FLAGS += --coverage
+# Run Verilator in debug mode
+#VERILATOR_FLAGS += --debug
+# Add this trace to get a backtrace in gdb
+#VERILATOR_FLAGS += --gdbbt 
+VERILATOR_FLAGS += --build --hierarchical
+VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=$*" -DTO_SIM
+
+VERILATOR_INPUT = +librescan +libext+.v+.sv+.vh+.svh ../../vrf/$*.sv -f ../input.vc ../../sim_common/common/tb.cpp ../../vrf/tb_$*.cpp
+
+TESTS_LIST = 
+
+SIM_ARGS =
+ifneq ($(cycles),)
+SIM_ARGS += +cycles=$(cycles)
+endif
+ifneq ($(trace),)
+SIM_ARGS += +trace
+endif
+
+default: top
+
+obj_dir/V%:
+	@echo "--- Verilator run ---"
+	@rm -rf logs_$* obj_dir
+	$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT)
+
+top: obj_dir/Vtop
+	@echo "--- Test $@ running ---"
+	obj_dir/Vtop $(SIM_ARGS)
+ifneq ($(trace),)
+	mv logs_top/wave.fst ../$@.fst
+endif
+	rm -rf logs_top obj_dir fw.vh
+	@echo "--- Test $@ finished ---"
+ifneq ($(trace),)
+	gtkwave -a ../top.gtkw -6 -7 ../$@.fst
+endif
+
+show-config:
+	$(VERILATOR) -V
+
+all: top
+
+maintainer-copy::
+clean mostlyclean distclean maintainer-clean:: clean_test
+	-rm -rf obj_dir logs *.log *.dmp *.vpd coverage.dat core
+
+$(V).SILENT:
