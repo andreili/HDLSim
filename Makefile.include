@@ -54,7 +54,7 @@ endif
 	rm -rf logs_top obj_dir fw.vh
 	@echo "--- Test $@ finished ---"
 ifneq ($(trace),)
-	gtkwave -a ../top.gtkw -6 -7 ../$@.fst
+	gtkwave -a ../top.gtkw -6 -7 $(GTK_FLAGS) ../$@.fst
 endif
 
 show-config:
