@@ -6,7 +6,7 @@ VERILATOR = verilator
 VERILATOR_COVERAGE = verilator_coverage
 
 # Generate C++ in executable form
-VERILATOR_FLAGS += -cc --exe -j 6
+VERILATOR_FLAGS += -cc --exe -j 6 --threads 5
 # Generate makefile dependencies (not shown as complicates the Makefile)
 #VERILATOR_FLAGS += -MMD
 # Optimize
@@ -14,7 +14,7 @@ VERILATOR_FLAGS += -x-assign fast
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
 # Make waveforms
-VERILATOR_FLAGS += --trace-fst --trace-structs
+VERILATOR_FLAGS += --trace-fst --trace-structs --trace-threads 1
 # Check SystemVerilog assertions
 VERILATOR_FLAGS += --assert
 # Generate coverage analysis
@@ -24,7 +24,8 @@ VERILATOR_FLAGS += --coverage
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt 
 VERILATOR_FLAGS += --build --hierarchical
-VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=$*" -DTO_SIM
+VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=$* -lpthread" -DTO_SIM
+VERILATOR_FLAGS += -LDFLAGS "-lpthread"
 
 VERILATOR_INPUT = +librescan +libext+.v+.sv+.vh+.svh ../../vrf/$*.sv -f ../input.vc ../../sim_common/common/tb.cpp ../../vrf/tb_$*.cpp
 
