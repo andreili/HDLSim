@@ -63,6 +63,26 @@ show-config:
 
 all: top
 
+.ONESHELL:
+
+test_%: $(work_dir_isa)/%.vh obj_dir/Vtop
+	@echo "-------- Start $@ --------"
+	TEST_NAME=$@
+	cp $< fw.vh
+	obj_dir/Vtop $(SIM_ARGS) +TEST_FW=fw.vh
+	if [ $$? -ne 0 ]; then \
+		echo "$(TEST_NAME) failure!"; \
+		python ../../sim_common/results.py add "$(TEST_NAME)" "Failed"; \
+		rm -rf obj_dir; \
+		gtkwave -a ../top.gtkw -6 -7 $(GTK_FLAGS) logs_top/wave.fst; \
+		exit 1; \
+	fi
+	echo "$@ success!"
+	python ../../sim_common/results.py ../../results.json add "$@" "Pass"
+	mv logs_top/wave.fst $@.fst
+	rm -rf logs_top fw.vh
+	@echo "--------------------------"
+
 maintainer-copy::
 clean mostlyclean distclean maintainer-clean::
 	-rm -rf obj_dir logs *.log *.dmp *.vpd coverage.dat core
