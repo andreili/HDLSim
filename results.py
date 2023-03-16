@@ -16,7 +16,7 @@ def load_data():
 def save_data():
     global data
     f = open(data_fn, "w")
-    json.dump(data, f)
+    json.dump(data, f, indent=4)
     f.close()
 
 def add_test_results(test, result):
