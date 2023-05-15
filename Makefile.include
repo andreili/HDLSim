@@ -6,7 +6,7 @@ VERILATOR = verilator
 VERILATOR_COVERAGE = verilator_coverage
 
 # Generate C++ in executable form
-VERILATOR_FLAGS += -cc --exe -j 6 --threads 5
+VERILATOR_FLAGS += -cc --exe -j 6 --threads 10
 # Generate makefile dependencies (not shown as complicates the Makefile)
 #VERILATOR_FLAGS += -MMD
 # Optimize
