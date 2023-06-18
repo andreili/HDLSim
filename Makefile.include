@@ -80,6 +80,7 @@ test_%: $(work_dir_isa)/%.vh obj_dir/Vtop
 	echo "$@ success!"
 	python ../../sim_common/results.py ../../results.json add "$@" "Pass"
 	mv logs_top/wave.fst $@.fst
+	mv trace.txt $@.txt
 	rm -rf logs_top fw.vh
 	@echo "--------------------------"
 
