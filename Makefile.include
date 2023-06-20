@@ -25,7 +25,7 @@ VERILATOR_FLAGS += --coverage
 #VERILATOR_FLAGS += --gdbbt 
 VERILATOR_FLAGS += --build --hierarchical
 VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=tb_$* -lpthread" -DTO_SIM
-VERILATOR_FLAGS += -LDFLAGS "-lpthread"
+VERILATOR_FLAGS += -LDFLAGS "-lpthread -ljsoncpp -lfmt"
 
 VERILATOR_INPUT = +librescan +libext+.v+.sv+.vh+.svh ../../vrf/tb_$*.sv -f ../input.vc ../../sim_common/common/tb.cpp ../../vrf/tb_$*.cpp
 
