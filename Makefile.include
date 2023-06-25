@@ -24,10 +24,10 @@ VERILATOR_FLAGS += --coverage
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt 
 VERILATOR_FLAGS += --build --hierarchical
-VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=tb_$* -lpthread" -DTO_SIM
+VERILATOR_FLAGS += -CFLAGS "-I../../../vrf/ -I../../../sim_common/common/ -DTOP_NAME=$* -lpthread" -DTO_SIM
 VERILATOR_FLAGS += -LDFLAGS "-lpthread -ljsoncpp -lfmt"
 
-VERILATOR_INPUT = +librescan +libext+.v+.sv+.vh+.svh ../../vrf/tb_$*.sv -f ../input.vc ../../sim_common/common/tb.cpp ../../vrf/tb_$*.cpp
+VERILATOR_INPUT = +librescan +libext+.v+.sv+.vh+.svh ../../vrf/$*.sv -f ../input.vc ../../sim_common/common/tb.cpp ../../vrf/$*.cpp
 
 TESTS_LIST = 
 
@@ -46,7 +46,7 @@ obj_dir/V%:
 	@rm -rf logs_$* obj_dir
 	$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT)
 
-tb_%: obj_dir/V%
+tb_%: obj_dir/Vtb_%
 	@echo "--- Test $* running ---"
 	obj_dir/V$@ $(SIM_ARGS)
 ifneq ($(trace),)
@@ -69,17 +69,17 @@ test_%: $(work_dir_isa)/%.vh obj_dir/Vtb_top
 	cp $< fw.vh
 	obj_dir/Vtb_top $(SIM_ARGS) +TEST_FW=fw.vh
 	if [ $$? -ne 0 ]; then \
-		echo "$(TEST_NAME) failure!"; \
-		python ../../sim_common/results.py add "$(TEST_NAME)" "Failed"; \
+		echo "$@ failure!"; \
+		python ../../sim_common/results.py ../../results.json add "$@" "Failed"; \
 		rm -rf obj_dir; \
-		gtkwave -a ../top.gtkw -6 -7 $(GTK_FLAGS) logs_top/wave.fst; \
+		gtkwave -a ../top.gtkw -6 -7 $(GTK_FLAGS) logs_tb_top/wave.fst; \
 		exit 1; \
 	fi
 	echo "$@ success!"
 	python ../../sim_common/results.py ../../results.json add "$@" "Pass"
-	mv logs_top/wave.fst $@.fst
+	mv logs_tb_top/wave.fst $@.fst
 	mv trace.txt $@.txt
-	rm -rf logs_top fw.vh
+	rm -rf logs_tb_top fw.vh
 	@echo "--------------------------"
 
 maintainer-copy::
