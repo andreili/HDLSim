@@ -1,6 +1,6 @@
 #include "tb.h"
 
-TB::TB(const std::string name, int argc, char** argv)
+TB::TB(const std::string name, int argc, const char** argv)
 {
     m_log_name = "logs_" + name;
     Verilated::mkdir(m_log_name.c_str());
@@ -23,10 +23,12 @@ int TB::step()
     m_context->timeInc(1);
     uint64_t cur_time = m_context->time();
     int ret_val;
+    #if (VM_TRACE_FST)
     if (m_fst != nullptr)
     {
         m_fst->dump(cur_time);
     }
+    #endif
     if (m_step_cb != nullptr)
     {
         ret_val = m_step_cb(cur_time, m_top);
@@ -54,10 +56,12 @@ int TB::run_steps(uint64_t steps)
 
 void TB::finish()
 {
+    #if (VM_TRACE_FST)
     if (m_fst != nullptr)
     {
         m_fst->close();
     }
+    #endif
 }
 
 void TB::parse_args()
@@ -67,6 +71,7 @@ void TB::parse_args()
 
 void TB::parse_args_trace()
 {
+    #if (VM_TRACE_FST)
     const char* arg = m_context->commandArgsPlusMatch("trace");
     if (strlen(arg) > 0)
     {
@@ -78,4 +83,5 @@ void TB::parse_args_trace()
     {
         m_fst = nullptr;
     }
+    #endif
 }

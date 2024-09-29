@@ -1,6 +1,8 @@
 #pragma once
 #include <verilated.h>
+#if (VM_TRACE_FST)
 #include <verilated_fst_c.h>
+#endif
 #include <string>
 #include <functional>
 
@@ -9,6 +11,7 @@
 #define EXPAND(x) x
 #define CONCAT(n1, n2) STRINGIFY_MACRO(EXPAND(n1)EXPAND(n2))
 #define CONCAT3(n1, n2, n3) STRINGIFY_MACRO(EXPAND(n1)EXPAND(n2)EXPAND(n3))
+#define CONCAT4(n1, n2, n3, n4) STRINGIFY_MACRO(EXPAND(n1)EXPAND(n2)EXPAND(n3)EXPAND(n4))
 #define CONCAT5(n1, n2, n3, n4, n5) STRINGIFY_MACRO(EXPAND(n1)EXPAND(n2)EXPAND(n3)EXPAND(n4)EXPAND(n5))
 
 #define CAT(x, y) CAT_(x, y)
@@ -24,7 +27,7 @@ typedef std::function<int(uint64_t,TOP_CLASS*)> step_cb_t;
 class TB
 {
 public:
-    TB(const std::string name, int argc, char** argv);
+    TB(const std::string name, int argc, const char** argv);
 
     void init(step_cb_t on_step = nullptr);
 
@@ -36,7 +39,9 @@ public:
     void finish();
 private:
     VerilatedContext*   m_context;
+    #if (VM_TRACE_FST)
     VerilatedFstC*      m_fst;
+    #endif
     std::string         m_log_name;
     TOP_CLASS*          m_top;
     step_cb_t           m_step_cb;
